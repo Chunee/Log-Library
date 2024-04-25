@@ -47,7 +47,7 @@ public:
 private:
 	// static thread_local StagingBuffer staging_buffer_;
 	// static thread_local Queue<const char *> queue_;
-	Queue<char> queue_{100};
+	static thread_local Queue<char> queue_;
 
 private:
 	template <typename... Args>
@@ -68,9 +68,12 @@ private:
 		fmt::vformat_to(fmt::appender(buf), fmt, fmt::make_format_args(args...));
 		buf.push_back('\n');
 
+		queue_.push(buf.data());
+
 		if ((queue_.size() + buf.size()) >= (queue_.capacity() / 4)) {
 			T* pop_ptr = new char[100];
 			queue_.pop(pop_ptr);
+
             int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
                	if (fd == -1) {
                		std::cerr << "Error opening file" << std::endl;
@@ -105,7 +108,6 @@ private:
 			// return;
 		// }
 
-		queue_.push(buf.data());
 		// staging_buffer_.addToBuffer(buf.data(), buf.size());
 	}
 

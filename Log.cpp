@@ -1,7 +1,7 @@
 #include "Log.h"
 
 // thread_local StagingBuffer Log::staging_buffer_{};
-// thread_local Queue<const char *> Log::queue_{100};
+thread_local Queue<char> Log::queue_{100};
 
 std::string Log::getPrefix() {
 	auto now = std::chrono::system_clock::now();

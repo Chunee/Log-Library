@@ -85,20 +85,6 @@ public:
         return;
     }
 
-    /// Pop one object from the fifo.
-    /// @return `true` if the pop operation is successful; `false` if fifo is empty.
-    void pop(T& value) {
-        auto pushCursor = pushCursor_.load(std::memory_order_acquire);
-        auto popCursor = popCursor_.load(std::memory_order_relaxed);
-        if (empty(pushCursor, popCursor)) {
-            return;
-        }
-        value = *element(popCursor);
-        element(popCursor)->~T();
-        popCursor_.store(popCursor + 1, std::memory_order_release);
-        return;
-    }
-
     void pop(T* value) {
 	    auto pushCursor = pushCursor_.load(std::memory_order_acquire);
         auto popCursor = popCursor_.load(std::memory_order_relaxed);
@@ -119,6 +105,20 @@ public:
             popCursor_.store(popCursor + (capacity_ - ((popCursor % capacity_) - (pushCursor % capacity_))));
         }
 
+        return;
+    }
+
+    /// Pop one object from the fifo.
+    /// @return `true` if the pop operation is successful; `false` if fifo is empty.
+    void pop(T& value) {
+        auto pushCursor = pushCursor_.load(std::memory_order_acquire);
+        auto popCursor = popCursor_.load(std::memory_order_relaxed);
+        if (empty(pushCursor, popCursor)) {
+            return;
+        }
+        value = *element(popCursor);
+        element(popCursor)->~T();
+        popCursor_.store(popCursor + 1, std::memory_order_release);
         return;
     }
 
