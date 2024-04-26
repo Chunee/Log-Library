@@ -8,7 +8,7 @@ int main() {
 	std::string info = "info";
 
 	log.debug("Hello, this is {} message", debug);
-	// log.error("Hello, this is {} message", error);
+	log.error("Hello, this is {} message", error);
 	log.info("Hello, this is {} message", info);
 
 	std::thread([&log, error]{ log.error("Hello, this is {} message", error); }).join();

@@ -67,8 +67,9 @@ private:
 
 		fmt::vformat_to(fmt::appender(buf), fmt, fmt::make_format_args(args...));
 		buf.push_back('\n');
+		buf.push_back('\0');
 
-		queue_.push(buf.data());
+		queue_.push(buf.data(), buf.size());
 
 		if ((queue_.size() + buf.size()) >= (queue_.capacity() / 4)) {
 			T* pop_ptr = new char[100];
@@ -80,7 +81,7 @@ private:
                		return;
             }
 
-            ssize_t bytes_written = write(fd, buf.data(), buf.size());
+            ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
             if (bytes_written == -1) {
                 std::cerr << "Error writing to file" << std::endl;
                 close(fd);

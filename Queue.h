@@ -59,14 +59,14 @@ public:
         return;
     }
 
-    void push(T* value) {
+    void push(T* value, std::size_t len) {
 	    auto pushCursor = pushCursor_.load(std::memory_order_relaxed);
         auto popCursor = popCursor_.load(std::memory_order_acquire);
         if (full(pushCursor, popCursor)) {
             return; 
         }
 
-        std::size_t len = strlen(value) + 1; // Add 1 to include the null-terminator
+        // std::size_t len = strlen(value) + 1; // Add 1 to include the null-terminator
         // if (len > capacity() - (pushCursor - popCursor)) {
         //     // Ensure that there's enough space in the buffer
         //     return;
