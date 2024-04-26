@@ -28,8 +28,8 @@ public:
 
     /// Returns the number of elements in the fifo
     auto size() const noexcept {
-        auto pushCursor = pushCursor_.load(std::memory_order_relaxed);
-        auto popCursor = popCursor_.load(std::memory_order_relaxed);
+        auto pushCursor = pushCursor_.load(std::memory_order_acquire);
+        auto popCursor = popCursor_.load(std::memory_order_acquire);
 
         assert(popCursor <= pushCursor);
         return pushCursor - popCursor;
@@ -102,7 +102,7 @@ public:
             memcpy(value + remaining_len, element(popCursor + remaining_len), pushCursor % capacity_);
             memset(element(popCursor), '0', remaining_len);
             memset(element(popCursor + remaining_len), '0', pushCursor % capacity_);
-            popCursor_.store(popCursor + (capacity_ - ((popCursor % capacity_) - (pushCursor % capacity_))));
+            popCursor_.store(popCursor + (capacity_ - ((popCursor % capacity_) - (pushCursor % capacity_))), std::memory_order_release);
         }
 
         return;
