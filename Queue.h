@@ -122,6 +122,14 @@ public:
         return;
     }
 
+    T& operator[](int index) {
+        if (index < 0 || index >= capacity_) {
+            throw std::out_of_range("Index out of range");
+        }
+
+        return element(index);
+    }
+
 private:
     auto full(size_type pushCursor, size_type popCursor) const noexcept {
         return (pushCursor - popCursor) == capacity_;
