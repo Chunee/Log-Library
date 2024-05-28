@@ -1,5 +1,7 @@
 #include "Log.h"
-#include <thread>
+#include "simple_logger.hpp"
+
+using namespace std::chrono_literals;
 
 // Function to read the RDTSC register
 inline uint64_t rdtsc() {
@@ -14,15 +16,22 @@ int main() {
 	std::string error = "error";
 	std::string info = "info";
 
+    // using juzzlin::L;
+    // L::init("myLog.txt");
+    // L::enableEchoMode(false);
+
 	// Start measuring time using RDTSC
     uint64_t start = rdtsc();
 
-	log.debug("Hello, this is {} message", debug);
-	log.error("Hello, this is {} message", error);
-	log.info("Hello, this is {} message", info);
-	std::thread([&log, error]{ log.error("Hello, this is {} message", error); }).join();
-	std::thread([&log, info]{ log.info("Hello, this is {} message", info); }).join();
     log.error("Hello, this is {} message", error);
+    log.info("Hello, this is {} message", info);
+    // std::thread([&log, error]{ log.error("Hello, this is {} message", error); }).join();
+    // std::thread([&log, info]{ log.info("Hello, this is {} message", info); }).join();
+
+    // L().info() << "Something happened";
+    // L().error() << "Something happened";
+    // std::thread([&]{ L().info() << "Something happened"; }).join();
+    // std::thread([&]{ L().error() << "Something happened"; }).join();
 
     // End measuring time using RDTSC
     uint64_t end = rdtsc();

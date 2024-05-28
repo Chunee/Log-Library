@@ -1,18 +1,18 @@
-#include <string_view>
 #include <iostream>
 #include <utility>
 #include <thread>
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+
 #include "LogLevel.h"
-// #include "StagingBuffer.h"
-#include "Queue.h"
+#include "ThreadPool.h"
+
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <fmt/format.h>
 #include <fmt/core.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 class Log {
 public:
@@ -71,24 +71,28 @@ private:
 
 		queue_.push(buf.data(), buf.size());
 
-		if ((queue_.size() + buf.size()) >= (queue_.capacity() / 4)) {
-			T* pop_ptr = new char[100];
+		if ((queue_.size() + buf.size()) >= (queue_.capacity() / 2)) {
+			T* pop_ptr = new char[200];
 			queue_.pop(pop_ptr);
 
-            int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+			pool_.enqueue_detach([pop_ptr]() {
+				int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
                	if (fd == -1) {
                		std::cerr << "Error opening file" << std::endl;
                		return;
-            }
+            	}
 
-            ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
-            if (bytes_written == -1) {
-                std::cerr << "Error writing to file" << std::endl;
-                close(fd);
-                return;
-            }
+				ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
+        		if (bytes_written == -1) {
+                	std::cerr << "Error writing to file" << std::endl;
+                	close(fd);
+                	return;
+            	}
 
-			delete[] pop_ptr;
+				delete[] pop_ptr;
+			});
+
+			pop_ptr = nullptr;
 		}
 
 		// if ((queue_.size() + buf.size()) >= (queue_.capacity() / 4)) {
@@ -119,4 +123,5 @@ private:
 
 	std::string getPrefix();
 	std::string logLevelToString(LogLevel);
+	ThreadPool<> pool_{2};
 };

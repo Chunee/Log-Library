@@ -11,6 +11,12 @@ public:
     using allocator_traits = std::allocator_traits<Alloc>;
     using size_type = typename allocator_traits::size_type;
 
+    Queue(Alloc const& alloc = Alloc{}) 
+        : Alloc{alloc}
+        , capacity_{0}
+        , ring_{allocator_traits::allocate(*this, capacity_)} 
+    {}
+
     explicit Queue(size_type capacity, Alloc const& alloc = Alloc{})
         : Alloc{alloc}
         , capacity_{capacity}
@@ -116,10 +122,30 @@ public:
         if (empty(pushCursor, popCursor)) {
             return;
         }
-        value = *element(popCursor);
+        value = std::move(*element(popCursor));
         element(popCursor)->~T();
         popCursor_.store(popCursor + 1, std::memory_order_release);
         return;
+    }
+
+    void pop() {
+        auto pushCursor = pushCursor_.load(std::memory_order_acquire);
+        auto popCursor = popCursor_.load(std::memory_order_relaxed);
+        if (empty(pushCursor, popCursor)) {
+            return;
+        }
+        element(popCursor)->~T();
+        popCursor_.store(popCursor + 1, std::memory_order_release);
+        return;
+    }
+
+    T& front() {
+        auto pushCursor = pushCursor_.load(std::memory_order_acquire);
+        auto popCursor = popCursor_.load(std::memory_order_acquire);
+        if (empty(pushCursor, popCursor)) {
+            throw std::underflow_error("Queue is empty");
+        }
+        return *element(popCursor);
     }
 
     T& operator[](int index) {
@@ -127,7 +153,7 @@ public:
             throw std::out_of_range("Index out of range");
         }
 
-        return element(index);
+        return *element(index);
     }
 
 private:
