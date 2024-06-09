@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define QUEUE_DEPTH 8
-#define BUFFER_SIZE 75
+#define BUFFER_SIZE 4096
 #define BUFFER_GROUP_ID 0
 
 struct io_uring_buf_ring;
