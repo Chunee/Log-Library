@@ -73,20 +73,14 @@ private:
 			T* pop_ptr = new char[100];
 			queue_.pop(pop_ptr);
 
-			// int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-   //      	if (fd == -1) {
-   //      		std::cerr << "Error opening file" << std::endl;
-   //      		return;
-   //   		}
+			int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+   	      	if (fd == -1) {
+   	      		std::cerr << "Error opening file" << std::endl;
+   	      		return;
+   	   		}
 
-			io_context_.write(1, pop_ptr, strlen(pop_ptr));
+			io_context_.write(fd, pop_ptr, strlen(pop_ptr));
 
-			// ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
-			// if (bytes_written == -1) {
-   //          	std::cerr << "Error writing to file" << std::endl;
-   //      		close(fd);
-   //       		return;
-   //   		}
 			pop_ptr = nullptr;
 		}
 	}

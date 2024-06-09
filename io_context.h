@@ -4,9 +4,7 @@
 #include <atomic>
 #include <stdexcept>
 #include <cstring>
-#include <memory>
 #include <string>
-#include <iostream>
 
 #define QUEUE_DEPTH 8
 #define BUFFER_SIZE 4096
@@ -46,6 +44,4 @@ private:
     std::thread event_loop_thread_;
     std::atomic<bool> running_;
     char buffer[BUFFER_SIZE];
-    std::unique_ptr<io_uring_buf_ring> buffer_ring_;
-    std::vector<std::vector<char>> buffer_list_;
 };

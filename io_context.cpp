@@ -9,7 +9,6 @@ io_context::io_context() :running_(true) {
 
 io_context::~io_context() {
     stop_event_loop();
-    event_loop_thread_.join();
     io_uring_queue_exit(&io_uring_);
 }
 
@@ -54,6 +53,8 @@ void io_context::handle_completion() {
         fprintf(stderr, "Write failed: %s\n", strerror(-cqe->res));
     } else {
         printf("Write completed successfully: %d bytes\n", cqe->res);
+        running_ = false;
+        event_loop_thread_.join();
     }
     io_uring_cqe_seen(&io_uring_, cqe);
 }
@@ -71,5 +72,8 @@ void io_context::stop_event_loop() {
 void io_context::write(int fd, const char* message, size_t len) {
     prepare_write_request(fd, message, len, 0);
     submit_request();
-    event_loop_thread_ = std::thread(&io_context::run_event_loop, this);
+    if (!running_) {
+        running_ = true;
+        event_loop_thread_ = std::thread(&io_context::run_event_loop, this);
+    }
 }
