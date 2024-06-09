@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define QUEUE_DEPTH 8
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 75
 #define BUFFER_GROUP_ID 0
 
 struct io_uring_buf_ring;
@@ -31,12 +31,6 @@ public:
     void write(int, const char*, size_t);
 
 private:
-    void initialize_buffer(const unsigned int, const size_t);
-
-    void register_buffer();
-    
-    void unregister_buffer();
-    
     void prepare_write_request(int, const char*, size_t, off_t);
 
     void submit_request();

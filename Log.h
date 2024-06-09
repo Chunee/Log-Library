@@ -6,10 +6,13 @@
 #include <iomanip>
 
 #include "LogLevel.h"
-#include "ThreadPool.h"
+#include "Queue.h"
+#include "io_context.h"
+// #include "ThreadPool.h"
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <liburing.h>
 
 #include <fmt/format.h>
 #include <fmt/core.h>
@@ -45,11 +48,6 @@ public:
 	}
 
 private:
-	// static thread_local StagingBuffer staging_buffer_;
-	// static thread_local Queue<const char *> queue_;
-	static thread_local Queue<char> queue_;
-
-private:
 	template <typename... Args>
 	void addLogMessage(LogLevel level, fmt::format_string<Args...> fmt, Args&&... args) {
 		log(level, to_string_view(fmt), std::forward<Args>(args)...);
@@ -72,48 +70,25 @@ private:
 		queue_.push(buf.data(), buf.size());
 
 		if ((queue_.size() + buf.size()) >= (queue_.capacity() / 2)) {
-			T* pop_ptr = new char[200];
+			T* pop_ptr = new char[100];
 			queue_.pop(pop_ptr);
 
-			pool_.enqueue_detach([pop_ptr]() {
-				int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-               	if (fd == -1) {
-               		std::cerr << "Error opening file" << std::endl;
-               		return;
-            	}
+			// int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+   //      	if (fd == -1) {
+   //      		std::cerr << "Error opening file" << std::endl;
+   //      		return;
+   //   		}
 
-				ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
-        		if (bytes_written == -1) {
-                	std::cerr << "Error writing to file" << std::endl;
-                	close(fd);
-                	return;
-            	}
+			io_context_.write(1, pop_ptr, strlen(pop_ptr));
 
-				delete[] pop_ptr;
-			});
-
+			// ssize_t bytes_written = write(fd, pop_ptr, strlen(pop_ptr));
+			// if (bytes_written == -1) {
+   //          	std::cerr << "Error writing to file" << std::endl;
+   //      		close(fd);
+   //       		return;
+   //   		}
 			pop_ptr = nullptr;
 		}
-
-		// if ((queue_.size() + buf.size()) >= (queue_.capacity() / 4)) {
-			// auto task = pool.enqueue([&buf] {
-				// int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-				// if (fd == -1) {
-					//std::cerr << "Error opening file" << std::endl;
-					//return;
-				// }
-
-				// ssize_t bytes_written = write(fd, buf.data(), buf.size());
-				// if (bytes_written == -1) {
-					// std::cerr << "Error writing to file" << std::endl;
-					// close(fd);
-					// return;
-				// }
-			// });
-			// return;
-		// }
-
-		// staging_buffer_.addToBuffer(buf.data(), buf.size());
 	}
 
 	template <typename T, typename... Args>
@@ -123,5 +98,8 @@ private:
 
 	std::string getPrefix();
 	std::string logLevelToString(LogLevel);
-	ThreadPool<> pool_{2};
+
+private:
+	static thread_local Queue<char> queue_;
+	io_context io_context_{};
 };
