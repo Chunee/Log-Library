@@ -47,6 +47,8 @@ public:
 		addLogMessage(LogLevel::FATAL, fmt, std::forward<Args>(args)...);
 	}
 
+	void setOutputFile(std::string_view);
+
 private:
 	template <typename... Args>
 	void addLogMessage(LogLevel level, fmt::format_string<Args...> fmt, Args&&... args) {
@@ -73,7 +75,7 @@ private:
 			T* pop_ptr = new char[100];
 			queue_.pop(pop_ptr);
 
-			int fd = open("output.txt", O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+			int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
    	      	if (fd == -1) {
    	      		std::cerr << "Error opening file" << std::endl;
    	      		return;
@@ -96,4 +98,5 @@ private:
 private:
 	static thread_local Queue<char> queue_;
 	io_context io_context_{};
+	std::string_view file_path_;
 };

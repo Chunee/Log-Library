@@ -1,7 +1,10 @@
 #include "Log.h"
 
-// thread_local StagingBuffer Log::staging_buffer_{};
 thread_local Queue<char> Log::queue_{100};
+
+void Log::setOutputFile(std::string_view file_path) {
+	file_path_ = file_path;
+}
 
 std::string Log::getPrefix() {
 	auto now = std::chrono::system_clock::now();
