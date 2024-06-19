@@ -1,12 +1,12 @@
-#include "Log.h"
+#include "log/Log.h"
 
-thread_local Queue<char> Log::queue_{100};
+thread_local Queue<char> logging::Log::queue_{100};
 
-void Log::setOutputFile(std::string_view file_path) {
+void logging::Log::setOutputFile(std::string_view file_path) {
 	file_path_ = file_path;
 }
 
-std::string Log::getPrefix() {
+std::string logging::Log::getPrefix() {
 	auto now = std::chrono::system_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 	auto time = std::chrono::system_clock::to_time_t(now);
@@ -20,7 +20,7 @@ std::string Log::getPrefix() {
 	return ss.str();
 }
 
-std::string Log::logLevelToString(LogLevel level) {
+std::string logging::Log::logLevelToString(LogLevel level) {
 	switch (level) {
 		case LogLevel::DEBUG:
 			return "DEBUG ";

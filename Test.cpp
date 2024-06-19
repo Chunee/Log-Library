@@ -1,4 +1,4 @@
-#include "Log.h"
+#include "log/Log.h"
 #include "simple_logger.hpp"
 
 using namespace std::chrono_literals;
@@ -11,7 +11,7 @@ inline uint64_t rdtsc() {
 }
 
 int main() {
-	Log log;
+	logging::Log log;
 	std::string debug = "debug";
 	std::string error = "error";
 	std::string info = "info";
@@ -20,6 +20,8 @@ int main() {
     // using juzzlin::L;
     // L::init("myLog.txt");
     // L::enableEchoMode(false);
+
+    log.setOutputFile("output.txt");
 
 	// Start measuring time using RDTSC
     uint64_t start = rdtsc();
