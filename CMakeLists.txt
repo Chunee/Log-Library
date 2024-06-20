@@ -31,7 +31,7 @@ set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(SimpleLogger EXCLUDE_FROM_ALL)
 
 # Create library
-add_library(log_lib STATIC src/Log.cpp src/io_context.cpp)
+add_library(log_lib STATIC src/Log.cpp src/IoContext.cpp)
 
 target_include_directories(log_lib PUBLIC ${PROJECT_SOURCE_DIR}/include ${LIBURING_INCLUDE_DIR})
 target_link_libraries(log_lib PUBLIC ${LIBURING_LIBRARY})

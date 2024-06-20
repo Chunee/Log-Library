@@ -7,8 +7,7 @@
 
 #include "LogLevel.h"
 #include "Queue.h"
-#include "io_context.h"
-// #include "ThreadPool.h"
+#include "IoContext.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -97,8 +96,8 @@ namespace logging {
 		std::string logLevelToString(LogLevel);
 
 	private:
-		static thread_local Queue<char> queue_;
-		io_context io_context_{};
+		static thread_local logging::Queue<char> queue_;
+		logging::IoContext io_context_{};
 		std::string_view file_path_;
 	};
 }
