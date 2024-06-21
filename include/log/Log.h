@@ -27,36 +27,24 @@ namespace logging {
 		Log(Log&& other) noexcept  = delete;
 		Log& operator=(Log&& other) noexcept = delete;
 
-		template<typename... Args>
-		void debug(fmt::format_string<Args...> fmt, Args&&...args) {
-			addLogMessage(LogLevel::DEBUG, fmt, std::forward<Args>(args)...);
+		#define _FUNCTION(name) \
+		template<typename... Args> \
+		void name(fmt::format_string<Args...> fmt, Args&&... args) { \
+			addLogMessage(logging::LogLevel::name, fmt, std::forward<Args>(args)...); \
 		}
-
-		template<typename... Args>
-		void info(fmt::format_string<Args...> fmt, Args&&...args) {
-			addLogMessage(LogLevel::INFO, fmt, std::forward<Args>(args)...);
-		}
-
-		template<typename... Args>
-		void error(fmt::format_string<Args...> fmt, Args&&...args) {
-			addLogMessage(LogLevel::ERROR, fmt, std::forward<Args>(args)...);
-		}
-
-		template<typename... Args>
-		void fatal(fmt::format_string<Args...> fmt, Args&&...args) {
-			addLogMessage(LogLevel::FATAL, fmt, std::forward<Args>(args)...);
-		}
+		LOGGING_FOR_EACH_LOG_LEVEL(_FUNCTION)
+		#undef _FUNCTION
 
 		void setOutputFile(std::string_view);
 
 	private:
 		template <typename... Args>
-		void addLogMessage(LogLevel level, fmt::format_string<Args...> fmt, Args&&... args) {
+		void addLogMessage(logging::LogLevel level, fmt::format_string<Args...> fmt, Args&&... args) {
 			log(level, to_string_view(fmt), std::forward<Args>(args)...);
 		}
 
 		template <typename T, typename... Args>
-		void log(LogLevel level, fmt::basic_string_view<T> fmt, Args&&... args) {
+		void log(logging::LogLevel level, fmt::basic_string_view<T> fmt, Args&&... args) {
 			std::string prefix = getPrefix();
 
 			fmt::basic_memory_buffer<T> buf;
@@ -93,7 +81,7 @@ namespace logging {
 		}
 
 		std::string getPrefix();
-		std::string logLevelToString(LogLevel);
+		std::string logLevelToString(logging::LogLevel);
 
 	private:
 		static thread_local logging::Queue<char> queue_;

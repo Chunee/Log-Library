@@ -20,17 +20,11 @@ std::string logging::Log::getPrefix() {
 	return ss.str();
 }
 
-std::string logging::Log::logLevelToString(LogLevel level) {
-	switch (level) {
-		case LogLevel::DEBUG:
-			return "DEBUG ";
-		case LogLevel::INFO:
-			return "INFO ";
-		case LogLevel::ERROR:
-			return "ERROR ";
-		case LogLevel::FATAL:
-			return "FATAL ";
-		default:
-			return "UNKNOWN ";
+std::string logging::Log::logLevelToString(logging::LogLevel level) {
+	switch(level) {
+#define _FUNCTION(name) case logging::LogLevel::name: return #name;
+	LOGGING_FOR_EACH_LOG_LEVEL(_FUNCTION)
+#undef _FUNCTION
 	}
+	return "UNKNOWN";
 }

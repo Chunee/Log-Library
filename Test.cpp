@@ -27,8 +27,8 @@ int main() {
     uint64_t start = rdtsc();
 
     log.error("Hello, this is {} message", error);
-    // log.info("Hello, this is {} message", info);
-    // log.debug("Hello, this is {} message", debug);
+    log.info("Hello, this is {} message", info);
+    log.debug("Hello, this is {} message", debug);
     // log.fatal("Hello, this is {} message", fatal);
     // std::thread([&log, error]{ log.error("Hello, this is {} message", error); }).join();
     // std::thread([&log, info]{ log.info("Hello, this is {} message", info); }).join();
