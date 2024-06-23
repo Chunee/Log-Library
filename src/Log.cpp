@@ -1,6 +1,6 @@
 #include "log/Log.h"
 
-thread_local logging::Queue<char> logging::Log::queue_{100};
+thread_local logging::Queue<char> logging::Log::queue_{250};
 
 void logging::Log::setOutputFile(std::string_view file_path) {
 	file_path_ = file_path;
