@@ -100,16 +100,24 @@ namespace logging {
             }
 
             if (pushCursor < capacity_) {
-                memcpy(value, element(popCursor), pushCursor % capacity_);
-                memset(element(popCursor), '0', pushCursor % capacity_);
-                popCursor_.store(popCursor + pushCursor, std::memory_order_release);
+                memcpy(value, element(popCursor), pushCursor - popCursor);
+                memset(element(popCursor), '0', pushCursor - popCursor);
+                popCursor_.store(popCursor + (pushCursor - popCursor), std::memory_order_release);
             } else {
-                std::size_t remaining_len = capacity_ - (popCursor % capacity_);
-                memcpy(value, element(popCursor), remaining_len);
-                memcpy(value + remaining_len, element(popCursor + remaining_len), pushCursor % capacity_);
-                memset(element(popCursor), '0', remaining_len);
-                memset(element(popCursor + remaining_len), '0', pushCursor % capacity_);
-                popCursor_.store(popCursor + (capacity_ - ((popCursor % capacity_) - (pushCursor % capacity_))), std::memory_order_release);
+		auto real_push = (popCursor > capacity_) ? pushCursor % capacity_ : pushCursor;
+		auto real_pop = popCursor % capacity_;
+                std::size_t len_to_add = (real_push > real_pop) ? real_push - real_pop : (capacity_ - real_pop + real_push);
+		if (real_pop + len_to_add > capacity_) {
+			memcpy(value, element(popCursor), capacity_ - real_pop);
+			memcpy(value + (capacity_ - real_pop), element(popCursor + capacity_ - (real_pop)), len_to_add - 			 (capacity_ - (real_pop)));
+			memset(element(popCursor), '0', capacity_ - real_pop);
+			memset(element(popCursor + capacity_ - real_pop), '0', len_to_add - (capacity_ - real_pop));
+		}
+		else {
+			memcpy(value, element(popCursor), len_to_add);
+			memset(element(popCursor), '0', len_to_add);
+		}
+                popCursor_.store(popCursor + len_to_add, std::memory_order_release);
             }
 
             return;

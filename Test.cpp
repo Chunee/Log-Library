@@ -29,29 +29,35 @@ int main() {
     log.error("Hello, this is {} message", error);
     log.info("Hello, this is {} message", info);
     log.debug("Hello, this is {} message", debug);
-    // log.fatal("Hello, this is {} message", fatal);
+    log.info("Hello, this is {} message", info);
+    log.fatal("Hello, this is {} message", fatal);
+    log.info("Hello, this is {} message", info);
+    log.debug("Hello, this is {} message", debug);
+    log.error("Hello, this is {} message", error);
+    log.fatal("Hello, this is {} message", fatal);
+    log.info("Hello, this is {} message", info);
     // std::thread([&log, error]{ log.error("Hello, this is {} message", error); }).join();
     // std::thread([&log, info]{ log.info("Hello, this is {} message", info); }).join();
 
-    std::vector<std::thread> threads;
+    //std::vector<std::thread> threads;
 
-    for (int i = 0; i < 3; ++i) {
-        threads.push_back(std::thread([i,&log] {
-            std::vector<std::thread> innerThreads;
-            for (int j = 0; j < 5; ++j) {
-                innerThreads.push_back(std::thread([i, j, &log] {
-                    log.error("Hello, this is thread {}, error", std::to_string(i));
-                }));
-            }
-            for (auto& t : innerThreads) {
-                t.join();
-            }
-        }));
-    }
+    //for (int i = 0; i < 3; ++i) {
+    //   threads.push_back(std::thread([i,&log] {
+    //      std::vector<std::thread> innerThreads;
+    //       for (int j = 0; j < 5; ++j) {
+    //          innerThreads.push_back(std::thread([i, j, &log] {
+    //              log.error("Hello, this is thread {}, error", std::to_string(i));
+    //           }));
+    //        }
+    //        for (auto& t : innerThreads) {
+    //            t.join();
+    //        }
+    //    }));
+    //}
 
-    for (auto& t : threads) {
-        t.join();
-    }
+    //for (auto& t : threads) {
+    //    t.join();
+    //}
 
     // L().info() << "Something happened";
     // L().error() << "Something happened";
@@ -67,5 +73,5 @@ int main() {
     // Output the elapsed time
     std::cout << "Elapsed time: " << elapsedTime << " CPU cycles" << std::endl;
 
-	return 0;
+    return 0;
 }

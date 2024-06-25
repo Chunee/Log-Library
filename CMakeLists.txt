@@ -27,6 +27,14 @@ include_directories(${LIBURING_INCLUDE_DIR})
 # Set the build type
 set(CMAKE_BUILD_TYPE Debug)
 
+#Valgrind
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+
+# ASan
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
 # Add subdirectories
 add_subdirectory(SimpleLogger EXCLUDE_FROM_ALL)
 
@@ -51,9 +59,4 @@ target_link_libraries(log_test PRIVATE
     SimpleLogger_static 
     log_lib
 )
-
-# Optional flags (uncomment if needed)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 

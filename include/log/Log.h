@@ -66,12 +66,12 @@ namespace logging {
 
 			auto log_msg = fmt::vformat(to_string_view(fmt.format()), fmt::make_format_args(args...));
 
-			auto output_msg = fmt::format("{} {}:{} [{}] {}\n\0", now, loc.file_name(), loc.line(), logLevelToString(level), log_msg);
+			auto output_msg = fmt::format("{} {}:{} [{}] {}\n", now, loc.file_name(), loc.line(), logLevelToString(level), log_msg);
 
 			queue_.push(output_msg.data(), output_msg.size());
 
 			if ((queue_.size() + output_msg.size()) >= (queue_.capacity() / 2)) {
-				char* pop_ptr = new char[200];
+				char* pop_ptr = new char[450];
 				queue_.pop(pop_ptr);
 
 				int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
@@ -82,7 +82,6 @@ namespace logging {
 
 				io_context_.write(fd, pop_ptr, strlen(pop_ptr));
 
-				pop_ptr = nullptr;
 			}
 
 		}
