@@ -58,8 +58,6 @@ namespace logging {
 	private:
 		template <typename... Args>
 		void addLogMessage(logging::LogLevel level, source_location<fmt::format_string<Args...>> fmt, Args&&... args) {
-			// log(level, to_string_view(fmt.format()), std::forward<Args>(args)...);
-			
 			std::string now = getPrefix();
 
 			auto const& loc = fmt.location();
@@ -85,46 +83,11 @@ namespace logging {
 
 		}
 
-		// template <typename T, typename... Args>
-		// void log(logging::LogLevel level, fmt::basic_string_view<T> fmt, Args&&... args) {
-		// 	std::string prefix = getPrefix();
-
-		// 	fmt::basic_memory_buffer<T> buf;
-
-		// 	std::string msg = fmt::format("{} {}:{} [{}] ", prefix, loc.file_name(), loc.line(), logLevelToString(level));
-
-		// 	// std::string level_string = logLevelToString(level);
-		// 	// buf.append(level_string);
-
-		// 	buf.append(msg);
-
-		// 	fmt::vformat_to(fmt::appender(buf), fmt);
-		// 	buf.push_back('\n');
-		// 	buf.push_back('\0');
-
-		// 	queue_.push(buf.data(), buf.size());
-
-		// 	if ((queue_.size() + buf.size()) >= (queue_.capacity() / 2)) {
-		// 		T* pop_ptr = new char[100];
-		// 		queue_.pop(pop_ptr);
-
-		// 		int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-	 //   	      	if (fd == -1) {
-	 //   	      		std::cerr << "Error opening file" << std::endl;
-	 //   	      		return;
-	 //   	   		}
-
-		// 		io_context_.write(fd, pop_ptr, strlen(pop_ptr));
-
-		// 		pop_ptr = nullptr;
-		// 	}
-		// }
-
 		template <typename T, typename... Args>
 		inline fmt::basic_string_view<T> to_string_view(fmt::basic_format_string<T, Args...> fmt) {
 			return fmt;
 		}
-
+		
 		std::string getPrefix();
 		std::string logLevelToString(logging::LogLevel);
 
