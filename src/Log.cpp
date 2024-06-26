@@ -2,6 +2,16 @@
 
 thread_local logging::Queue<char> logging::Log::queue_{1000};
 
+logging::Log::~Log() {
+	char* pop_ptr = queue_.flush();
+	int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+	if (fd == -1) {
+		std::cerr << "Error opening file" << std::endl;
+	   	return;
+	}
+	io_context_.write(fd, pop_ptr, strlen(pop_ptr));
+}
+
 void logging::Log::setOutputFile(std::string_view file_path) {
 	file_path_ = file_path;
 }

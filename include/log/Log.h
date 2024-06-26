@@ -8,7 +8,7 @@
 #include <tuple>
 
 #include "LogLevel.h"
-#include "Queue.h"
+#include "queue.h"
 #include "IoContext.h"
 
 #include <fcntl.h>
@@ -38,7 +38,7 @@ namespace logging {
 	class Log {
 	public:
 		Log() = default;
-		~Log() = default;
+		~Log(); 
 
 		Log(const Log& other) = delete;
 		Log& operator=(const Log& other) = delete;
@@ -75,13 +75,12 @@ namespace logging {
 				queue_.pop(pop_ptr);
 
 				int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-	   	      	if (fd == -1) {
-	   	      		std::cerr << "Error opening file" << std::endl;
-	   	      		return;
+		   	      	if (fd == -1) {
+		   	      		std::cerr << "Error opening file" << std::endl;
+	   		      		return;
 	   	   		}
 
 				io_context_.write(fd, pop_ptr, strlen(pop_ptr));
-
 			}
 
 		}

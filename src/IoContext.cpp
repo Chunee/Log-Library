@@ -19,8 +19,8 @@ void logging::IoContext::prepare_write_request(int fd, const char* message, size
         return;
     }
 
-    memcpy(buffer, message, size);
-    io_uring_prep_write(sqe, fd, buffer, size, offset);
+    //memcpy(buffer, message, size);
+    io_uring_prep_write(sqe, fd, message, size, offset);
 }
 
 void logging::IoContext::submit_request() {
