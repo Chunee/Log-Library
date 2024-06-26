@@ -21,7 +21,6 @@ if (NOT LIBURING_LIBRARY)
 endif()
 
 # Include directories
-include_directories(SimpleLogger/src)
 include_directories(${LIBURING_INCLUDE_DIR})
 
 # Set the build type
@@ -34,9 +33,6 @@ set(CMAKE_BUILD_TYPE Debug)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-
-# Add subdirectories
-add_subdirectory(SimpleLogger EXCLUDE_FROM_ALL)
 
 # Create library
 add_library(log_lib STATIC src/Log.cpp src/IoContext.cpp)
@@ -56,7 +52,6 @@ target_include_directories(log_test PRIVATE
 target_link_libraries(log_test PRIVATE 
     fmt::fmt 
     benchmark::benchmark 
-    SimpleLogger_static 
     log_lib
 )
 

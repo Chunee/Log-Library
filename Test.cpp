@@ -1,5 +1,4 @@
 #include "log/Log.h"
-#include "simple_logger.hpp"
 
 using namespace std::chrono_literals;
 
