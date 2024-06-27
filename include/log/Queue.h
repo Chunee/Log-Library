@@ -165,6 +165,12 @@ namespace logging {
             return *element(index);
         }
 
+	T* flush() {
+		T* pop_ptr = new T[size()];
+		pop(pop_ptr);
+		return pop_ptr;
+	}
+
     private:
         auto full(size_type pushCursor, size_type popCursor) const noexcept {
             return (pushCursor - popCursor) == capacity_;

@@ -26,22 +26,22 @@ include_directories(${LIBURING_INCLUDE_DIR})
 # Set the build type
 set(CMAKE_BUILD_TYPE Debug)
 
-#Valgrind
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+# Valgrind
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
 # ASan
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
 # Create library
-add_library(log_lib STATIC src/Log.cpp src/IoContext.cpp)
+add_library(log_lib STATIC src/log.cpp src/io_context.cpp)
 
 target_include_directories(log_lib PUBLIC ${PROJECT_SOURCE_DIR}/include ${LIBURING_INCLUDE_DIR})
 target_link_libraries(log_lib PUBLIC ${LIBURING_LIBRARY})
 
 # Add executable
-add_executable(log_test Test.cpp)
+add_executable(log_test test.cpp)
 
 # Target include directories
 target_include_directories(log_test PRIVATE 
