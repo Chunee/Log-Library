@@ -38,33 +38,33 @@ int main() {
 
     std::vector<std::thread> threads;
 
-    for (int i = 0; i < 5; ++i) {
-        threads.push_back(std::thread([i, &log] {
-            log.error("Hello, this is thread {}, error", std::to_string(i));
-        }));
-    }
-
-    for (auto& t : threads) {
-        t.join();
-    }
-
-    // for (int i = 0; i < 3; ++i) {
-    //     threads.push_back(std::thread([i,&log] {
-    //         std::vector<std::thread> innerThreads;
-    //         for (int j = 0; j < 5; ++j) {
-    //             innerThreads.push_back(std::thread([i, j, &log] {
-    //               log.error("Hello, this is thread {}, error", std::to_string(i));
-    //             }));
-    //         }
-    //         for (auto& t : innerThreads) {
-    //             t.join();
-    //         }
+    // for (int i = 0; i < 5; ++i) {
+    //     threads.push_back(std::thread([i, &log] {
+    //         log.error("Hello, this is thread {}, error", std::to_string(i));
     //     }));
     // }
 
     // for (auto& t : threads) {
     //     t.join();
     // }
+
+    for (int i = 0; i < 3; ++i) {
+        threads.push_back(std::thread([i,&log] {
+            std::vector<std::thread> innerThreads;
+            for (int j = 0; j < 10; ++j) {
+                innerThreads.push_back(std::thread([i, j, &log] {
+                  log.error("Hello, this is thread {}, error", std::to_string(i));
+                }));
+            }
+            for (auto& t : innerThreads) {
+                t.join();
+            }
+        }));
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
 
     // L().info() << "Something happened";
     // L().error() << "Something happened";

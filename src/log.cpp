@@ -1,6 +1,6 @@
 #include "log/log.h"
 
-thread_local logging::Queue<char> logging::Log::queue_{1000};
+thread_local logging::Queue<char> logging::Log::queue_{250};
 
 logging::Log::~Log() {
 	char* pop_ptr = queue_.flush();

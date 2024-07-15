@@ -7,7 +7,7 @@
 #include <source_location>
 
 #include "log_level.h"
-#include "Queue.h"
+#include "queue.h"
 #include "io_context.h"
 
 #include <fcntl.h>
@@ -68,7 +68,7 @@ namespace logging {
 			queue_.push(output_msg.data(), output_msg.size());
 
 			if ((queue_.size() + output_msg.size()) >= (queue_.capacity() / 2)) {
-				char* pop_ptr = new char[450];
+				char* pop_ptr = new char[250];
 				queue_.pop(pop_ptr);
 
 				int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
