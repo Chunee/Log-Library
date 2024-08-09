@@ -20,8 +20,8 @@ void logging::IoContext::prepare_write_request(int fd, const char* message, size
         return;
     }
 
-    // memcpy(buffer, message, size);
-    io_uring_prep_write(sqe, fd, message, size, offset);
+    memcpy(buffer, message, size);
+    io_uring_prep_write(sqe, fd, buffer, size, offset);
 }
 
 void logging::IoContext::submit_request() {
@@ -46,15 +46,15 @@ void logging::IoContext::submit_request() {
 void logging::IoContext::handle_completion() {
     struct io_uring_cqe* cqe;
     int ret = io_uring_wait_cqe(&io_uring_, &cqe);  // Block until a completion is available
-    if (ret < 0) {
-        fprintf(stderr, "io_uring_wait_cqe failed: %s\n", strerror(-ret));
-        return;
-    }
-    if (cqe->res < 0) {
-        fprintf(stderr, "Write failed: %s\n", strerror(-cqe->res));
-    } else {
-        printf("Write completed successfully: %d bytes\n", cqe->res);
-    }
+    // if (ret < 0) {
+    //     fprintf(stderr, "io_uring_wait_cqe failed: %s\n", strerror(-ret));
+    //     return;
+    // }
+    // if (cqe->res < 0) {
+    //     fprintf(stderr, "Write failed: %s\n", strerror(-cqe->res));
+    // } else {
+    //     printf("Write completed successfully: %d bytes\n", cqe->res);
+    // }
     io_uring_cqe_seen(&io_uring_, cqe);
 }
 
@@ -72,6 +72,14 @@ void logging::IoContext::run_event_loop() {
 
 void logging::IoContext::stop_event_loop() {
     running_ = false;
+
+    // Submit a dummy request to wake up the event loop if it's waiting
+    struct io_uring_sqe* sqe = io_uring_get_sqe(&io_uring_);
+    if (sqe) {
+        io_uring_prep_nop(sqe);
+        io_uring_submit(&io_uring_);
+    }
+
     if (event_loop_thread_.joinable()) {
         event_loop_thread_.join();
     }

@@ -1,4 +1,7 @@
 #include "log/log.h"
+#include "simple_logger.hpp"
+#include <fstream>
+// #include "NanoLog.hpp"
 
 using namespace std::chrono_literals;
 
@@ -11,19 +14,28 @@ inline uint64_t rdtsc() {
 
 int main() {
     logging::Log log;
-    std::string debug = "debug";
-    std::string error = "error";
-    std::string info = "info";
-    std::string fatal = "fatal";
+    int user_id = 42;
+    std::string error_message = "File not found";
+
+    log.setOutputFile("output.txt");
+
+    // log.error("User ID: {}, Error message: {}", user_id, error_message);
+
+    // std::string debug = "debug";
+    // std::string error = "error";
+    // std::string info = "info";
+    // std::string fatal = "fatal";
 
     // using juzzlin::L;
     // L::init("myLog.txt");
     // L::enableEchoMode(false);
+    // L().error() << "User ID: " << user_id << ", Error message: " << error_message;
 
-    log.setOutputFile("output.txt");
+    // nanolog::initialize(nanolog::GuaranteedLogger(), "/tmp/", "nanolog", 1);
+    // log.setOutputFile("output.txt");
 
     // Start measuring time using RDTSC
-    uint64_t start = rdtsc();
+    // uint64_t start = rdtsc();
 
     // log.error("Hello, this is {} message", error);
     // log.info("Hello, this is {} message", info);
@@ -38,22 +50,16 @@ int main() {
 
     std::vector<std::thread> threads;
 
-    // for (int i = 0; i < 5; ++i) {
-    //     threads.push_back(std::thread([i, &log] {
-    //         log.error("Hello, this is thread {}, error", std::to_string(i));
-    //     }));
-    // }
+    auto start = std::chrono::high_resolution_clock::now();
 
-    // for (auto& t : threads) {
-    //     t.join();
-    // }
-
-    for (int i = 0; i < 3; ++i) {
-        threads.push_back(std::thread([i,&log] {
+    for (int i = 0; i < 10; ++i) {
+        threads.push_back(std::thread([i,&user_id, &error_message, &log] {
             std::vector<std::thread> innerThreads;
-            for (int j = 0; j < 10; ++j) {
-                innerThreads.push_back(std::thread([i, j, &log] {
-                  log.error("Hello, this is thread {}, error", std::to_string(i));
+            for (int j = 0; j < 15; ++j) {
+                innerThreads.push_back(std::thread([i, j, &user_id, &error_message, &log] {
+                    log.error("User ID: {}, Error message: {}", user_id, error_message);
+                    // L().error() << "User ID: " << user_id << ", Error message: " << error_message;
+                    // LOG_INFO << "User ID: " << user_id << ", Error message" << error_message;
                 }));
             }
             for (auto& t : innerThreads) {
@@ -66,19 +72,33 @@ int main() {
         t.join();
     }
 
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+
+    std::cout << "Time taken: " << duration.count() << " nanoseconds\n";
+
     // L().info() << "Something happened";
     // L().error() << "Something happened";
+    // L().debug() << "Something happened";
+    // L().error() << "Something happened";
+    // L().info() << "Something happened";
+    // L().error() << "Something happened";
+    // L().debug() << "Something happened";
+    // L().error() << "Something happened";
+    // L().info() << "Something happened";
+    // L().debug() << "Something happened";
     // std::thread([&]{ L().info() << "Something happened"; }).join();
     // std::thread([&]{ L().error() << "Something happened"; }).join();
 
     // End measuring time using RDTSC
-    uint64_t end = rdtsc();
+    // uint64_t end = rdtsc();
 
     // Calculate the elapsed time
-    uint64_t elapsedTime = end - start;
+    // uint64_t elapsedTime = end - start;
 
     // Output the elapsed time
-    std::cout << "Elapsed time: " << elapsedTime << " CPU cycles" << std::endl;
+    // std::cout << "Elapsed time: " << elapsedTime << " CPU cycles" << std::endl;
 
     return 0;
 }

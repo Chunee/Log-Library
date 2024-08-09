@@ -32,10 +32,15 @@ set(CMAKE_BUILD_TYPE Debug)
 # ASan
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+
+add_subdirectory(SimpleLogger EXCLUDE_FROM_ALL)
+include_directories(SimpleLogger/src)
+
+include_directories(NanoLog)
 
 # Create library
-add_library(log_lib STATIC src/log.cpp src/io_context.cpp)
+add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
 
 target_include_directories(log_lib PUBLIC ${PROJECT_SOURCE_DIR}/include ${LIBURING_INCLUDE_DIR})
 target_link_libraries(log_lib PUBLIC ${LIBURING_LIBRARY})
@@ -53,5 +58,6 @@ target_link_libraries(log_test PRIVATE
     fmt::fmt 
     benchmark::benchmark 
     log_lib
+    SimpleLogger_static
 )
 

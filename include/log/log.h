@@ -9,6 +9,7 @@
 #include "log_level.h"
 #include "queue.h"
 #include "io_context.h"
+#include "mpmc_queue.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -37,7 +38,7 @@ namespace logging {
 	class Log {
 	public:
 		Log() = default;
-		~Log(); 
+		~Log() = default; 
 
 		Log(const Log& other) = delete;
 		Log& operator=(const Log& other) = delete;
@@ -65,25 +66,39 @@ namespace logging {
 
 			auto output_msg = fmt::format("{} {}:{} [{}] {}\n", now, loc.file_name(), loc.line(), logLevelToString(level), log_msg);
 
-			queue_.push(output_msg.data(), output_msg.size());
+			mpmc_.write(std::move(output_msg));
 
-			if ((queue_.size() + output_msg.size()) >= (queue_.capacity() / 2)) {
-				char* pop_ptr = new char[250];
-				queue_.pop(pop_ptr);
+			std::string pop_msg{};
+			while (mpmc_.size() >= mpmc_.capacity() / 2) {
+				mpmc_.read(pop_msg);
 
 				int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-		   	      	if (fd == -1) {
-		   	      		std::cerr << "Error opening file" << std::endl;
-	   		      		return;
-	   	   		}
+				if (fd == -1) {
+					std::cerr << "Error opening file" << std::endl;
+					return;
+				}
+				
+				io_context_.write(fd, pop_msg.data(), pop_msg.size());
+				// std::cout << pop_msg.data() << std::endl;
+			} 
+			// queue_.push(output_msg.data(), output_msg.size());
 
-				io_context_.write(fd, pop_ptr, strlen(pop_ptr));
-			}
+			// if ((queue_.size() + output_msg.size()) >= (queue_.capacity() / 2)) {
+			// 	char* pop_ptr = new char[250];
+			// 	queue_.pop(pop_ptr);
 
+			// 	int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+		 //   	      	if (fd == -1) {
+		 //   	      		std::cerr << "Error opening file" << std::endl;
+	  //  		      		return;
+	  //  	   		}
+
+			// 	io_context_.write(fd, pop_ptr, strlen(pop_ptr));
+			// }
 		}
 
 		template <typename T, typename... Args>
-		inline fmt::basic_string_view<T> to_string_view(fmt::basic_format_string<T, Args...> fmt) {
+		fmt::basic_string_view<T> to_string_view(fmt::basic_format_string<T, Args...> fmt) {
 			return fmt;
 		}
 		
@@ -92,7 +107,8 @@ namespace logging {
 
 	private:
 		static thread_local logging::Queue<char> queue_;
-		logging::IoContext io_context_{};
+		logging::IoContext io_context_;
 		std::string_view file_path_;
+		MPMCQueue<std::string> mpmc_{100};
 	};
 }
