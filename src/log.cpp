@@ -1,37 +1,31 @@
 #include "log/log.h"
 
-thread_local logging::Queue<char> logging::Log::queue_{250};
+logging::Log::~Log() {
+	while (!mpmc_.isEmpty()) {
+		std::string pop_msg{};
+		mpmc_.read(pop_msg);
 
-// logging::Log::~Log() {
-// 	if (queue_.empty()) {
-// 		return;
-// 	} else {
-// 		char* pop_ptr = queue_.flush();
-// 		int fd = open(file_path_.data(), O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-// 		if (fd == -1) {
-// 			std::cerr << "Error opening file" << std::endl;
-// 		   	return;
-// 		}
-// 		io_context_.write(fd, pop_ptr, strlen(pop_ptr));
-// 	}
-// }
+		io_context_.write(pop_msg.data(), pop_msg.size());
+	}
+}
 
 void logging::Log::setOutputFile(std::string_view file_path) {
 	file_path_ = file_path;
+	io_context_.register_file(file_path_);
 }
 
 std::string logging::Log::getPrefix() {
-	auto now = std::chrono::system_clock::now();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-	auto time = std::chrono::system_clock::to_time_t(now);
+    // Get current time
+    auto now = std::chrono::system_clock::now();
+    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+    auto time = std::chrono::system_clock::to_time_t(now);
 
-	std::thread::id this_id = std::this_thread::get_id();
+    // Get thread ID
+    std::thread::id this_id = std::this_thread::get_id();
+	auto thread_id_hash = std::hash<std::thread::id>{}(this_id);
 
-	std::stringstream ss;
-	ss << std::put_time(std::localtime(&time), "%Y-%m-%d %X.");
-	ss << std::setfill('0') << std::setw(3) << (ms % 1000) << ' ' << this_id << ' ';
-
-	return ss.str();
+    // Use fmt for formatting the prefix string
+    return fmt::format("{:%Y-%m-%d %H:%M:%S}.{:09d} {} ", *std::localtime(&time), (ns % 1000000000), thread_id_hash);
 }
 
 std::string logging::Log::logLevelToString(logging::LogLevel level) {

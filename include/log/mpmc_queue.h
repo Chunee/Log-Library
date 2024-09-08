@@ -267,7 +267,7 @@ protected:
     bool tryObtainPromisedPushTicketUntil(uint64_t& ticket, Slot*& slots, size_t& cap, int& stride, const std::chrono::time_point<Clock>& when) noexcept {
         bool deadlineReached = false;
         while (!deadlineReached) {
-            if (static_cast<Derived<T, Atom, Dynamic>>(this)->tryObtainPromisedPushTicket(ticket, slots, cap, stride)) {
+            if (tryObtainPromisedPushTicket(ticket, slots, cap, stride)) {
                 return true;
             }
 

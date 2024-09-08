@@ -5,8 +5,11 @@
 #include <stdexcept>
 #include <cstring>
 #include <string>
+#include <string_view>
+#include <mutex>
+#include "turn_sequencer.h"
 
-#define QUEUE_DEPTH 8
+#define QUEUE_DEPTH 100
 #define BUFFER_SIZE 4096
 #define BUFFER_GROUP_ID 0
 
@@ -27,23 +30,15 @@ namespace logging {
 
         ~IoContext();
 
-        void write(int, const char*, size_t);
-
-    private:
-        void prepare_write_request(int, const char*, size_t, off_t);
-
-        void submit_request();
-
-        void handle_completion();
-
-        void run_event_loop();
-
-        void stop_event_loop();
+        int register_file(std::string_view);
+        void write(const char*, size_t);
 
     private:
         struct io_uring io_uring_;
-        std::thread event_loop_thread_;
-        std::atomic<bool> running_;
-        char buffer[BUFFER_SIZE];
+        int fds[2];
+        std::atomic<uint32_t> count_{0};
+        std::atomic<uint32_t> turn_{0};
+        TurnSequencer<std::atomic> turn_sequencer_;
+        alignas(64) std::atomic<uint32_t> spinCutoff_;
     };
 }

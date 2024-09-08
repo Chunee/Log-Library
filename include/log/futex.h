@@ -1,3 +1,4 @@
+#pragma once
 #include <linux/futex.h>
 
 #include <atomic>
