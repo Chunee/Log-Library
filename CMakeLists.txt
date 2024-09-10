@@ -99,6 +99,7 @@ ExternalProject_Add(
   CONFIGURE_COMMAND ""
   BUILD_COMMAND make
   INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/liburing/src/liburing/src/include/liburing.h
 )
 
 # Manually set liburing include and library paths
