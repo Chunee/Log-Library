@@ -97,7 +97,7 @@ ExternalProject_Add(
 
 # Manually set liburing include and library paths
 set(LIBURING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/liburing-prefix/src/liburing/src/include)
-set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/liburing-prefix/src/liburing/liburing.a)
+set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/liburing-prefix/src/liburing/src/liburing.a)
 
 # Ensure liburing include directory is added after it's built
 ExternalProject_Get_Property(liburing source_dir)
