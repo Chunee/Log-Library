@@ -79,6 +79,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
+# Force fmt to build in Release mode
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+set(CMAKE_BUILD_TYPE Release)
+
 # Use ExternalProject_Add for liburing (make-based project)
 ExternalProject_Add(
   liburing
@@ -98,8 +103,6 @@ set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/liburing/src/liburing/liburing.a)
 ExternalProject_Get_Property(liburing source_dir)
 ExternalProject_Get_Property(liburing binary_dir)
 include_directories(${source_dir}/src/include)
-
-set(CMAKE_BUILD_TYPE Debug)
 
 # Add your log_lib library
 add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
