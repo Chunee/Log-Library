@@ -8,7 +8,11 @@
 #include <string_view>
 #include <mutex>
 #include "turn_sequencer.h"
+#include <fcntl.h>      // For O_WRONLY, O_CREAT, O_APPEND
+#include <sys/types.h>  // For open()
+#include <sys/stat.h>   // For file permissions (S_IRUSR, S_IWUSR)
 
+#include <unistd.h>     // For close()
 #define QUEUE_DEPTH 100
 #define BUFFER_SIZE 4096
 #define BUFFER_GROUP_ID 0
