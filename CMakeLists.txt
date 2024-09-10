@@ -77,7 +77,7 @@ project(log_lib VERSION 1.0.0 LANGUAGES C CXX)
 # endif()
 
 include(GNUInstallDirs)
-include(ExternalProject))
+include(ExternalProject)
 # Include the FetchContent module
 include(FetchContent)
 
