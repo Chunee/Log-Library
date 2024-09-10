@@ -77,7 +77,7 @@ project(log_lib VERSION 1.0.0 LANGUAGES C CXX)
 # endif()
 
 include(GNUInstallDirs)
-
+include(ExternalProject))
 # Include the FetchContent module
 include(FetchContent)
 
@@ -90,17 +90,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-# Fetch liburing
-FetchContent_Declare(
+# Use ExternalProject_Add for liburing (make-based project)
+ExternalProject_Add(
   liburing
   GIT_REPOSITORY https://github.com/axboe/liburing.git
-  GIT_TAG liburing-2.1  # Specify the version of liburing you need
+  GIT_TAG liburing-2.1
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND make
+  INSTALL_COMMAND ""
 )
 
-FetchContent_MakeAvailable(liburing)
-
-# Manually add liburing include directories for the build phase only
-set(LIBURING_INCLUDE_DIR ${liburing_SOURCE_DIR}/src/include)
+# Manually set liburing include and library paths
+set(LIBURING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/liburing-src/src/include)
+set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/_deps/liburing-src/liburing.a)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -112,9 +115,10 @@ target_include_directories(log_lib PUBLIC
     $<BUILD_INTERFACE:${LIBURING_INCLUDE_DIR}>  # Include liburing headers
 )
 
+add_dependencies(log_lib liburing fmt)
 target_link_libraries(log_lib PUBLIC
     fmt::fmt
-    ${liburing_BINARY_DIR}/liburing.a 
+    ${LIBURING_LIBRARY}
 )
 
 install(TARGETS log_lib fmt EXPORT log_libTargets
