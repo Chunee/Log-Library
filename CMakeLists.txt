@@ -102,8 +102,8 @@ ExternalProject_Add(
 )
 
 # Manually set liburing include and library paths
-set(LIBURING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/liburing-src/src/include)
-set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/_deps/liburing-src/liburing.a)
+set(LIBURING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/liburing/src/liburing/src/include)
+set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/liburing/src/liburing/liburing.a)
 
 set(CMAKE_BUILD_TYPE Debug)
 
