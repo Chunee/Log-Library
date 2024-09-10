@@ -99,6 +99,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(liburing)
 
+# Manually add liburing include directories for the build phase only
+set(LIBURING_INCLUDE_DIR ${liburing_SOURCE_DIR}/src/include)
+
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
@@ -106,7 +109,7 @@ add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
 target_include_directories(log_lib PUBLIC 
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> 
     $<INSTALL_INTERFACE:include>
-    ${liburing_SOURCE_DIR}/src/include  # Include liburing headers
+    $<BUILD_INTERFACE:${LIBURING_INCLUDE_DIR}>  # Include liburing headers
 )
 
 target_link_libraries(log_lib PUBLIC
