@@ -97,14 +97,7 @@ FetchContent_Declare(
   GIT_TAG liburing-2.1  # Specify the version of liburing you need
 )
 
-FetchContent_Populate(liburing)
-
-# Manually set liburing include directories and link to the library
-add_library(uring STATIC IMPORTED)
-set_target_properties(uring PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${liburing_SOURCE_DIR}/src/include"
-    IMPORTED_LOCATION "${liburing_BINARY_DIR}/liburing.a"
-)
+FetchContent_MakeAvailable(liburing)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -113,12 +106,12 @@ add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
 target_include_directories(log_lib PUBLIC 
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> 
     $<INSTALL_INTERFACE:include>
-    ${liburing_SOURCE_DIR}/src/include  # Include liburing headers
+    ${liburing_SOURCE_DIR}/src/include>  # Include liburing headers
 )
 
 target_link_libraries(log_lib PUBLIC
     fmt::fmt
-    uring
+    ${liburing_BINARY_DIR}/liburing.a 
 )
 
 install(TARGETS log_lib fmt EXPORT log_libTargets
