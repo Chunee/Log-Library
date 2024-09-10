@@ -113,7 +113,7 @@ target_link_libraries(log_lib PUBLIC
     uring
 )
 
-install(TARGETS log_lib EXPORT log_libTargets
+install(TARGETS log_lib fmt EXPORT log_libTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
