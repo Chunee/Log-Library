@@ -132,6 +132,10 @@ install(TARGETS log_lib fmt EXPORT log_libTargets
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
 
+# Manually install liburing headers and library
+install(DIRECTORY ${LIBURING_INCLUDE_DIR}/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/liburing)
+install(FILES ${LIBURING_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 install(EXPORT log_libTargets
     FILE log_libTargets.cmake
     NAMESPACE log_lib::
