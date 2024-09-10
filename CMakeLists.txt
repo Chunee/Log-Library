@@ -66,26 +66,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(log_lib VERSION 1.0.0 LANGUAGES C CXX)
 
-# set(fmt_DIR "/usr/lib/x86_64-linux-gnu/cmake/fmt/")
-# find_package(fmt REQUIRED)
-# 
-# find_path(LIBURING_INCLUDE_DIR NAMES liburing.h)
-# find_library(LIBURING_LIBRARY NAMES uring)
-
-# if (NOT LIBURING_INCLUDE_DIR OR NOT LIBURING_LIBRARY) 
-#     message(WARNING "liburing not found. You may need to set LIBURING_INCLUDE_DIR and LIBURING_LIBRARY manually")
-# endif()
-
 include(GNUInstallDirs)
 include(ExternalProject)
-# Include the FetchContent module
 include(FetchContent)
 
-# Fetch fmt library
+# Fetch fmt library using FetchContent
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 9.1.0  # You can specify the version you need
+  GIT_TAG 9.1.0  # Specify the version you need
 )
 
 FetchContent_MakeAvailable(fmt)
@@ -99,29 +88,39 @@ ExternalProject_Add(
   CONFIGURE_COMMAND ""
   BUILD_COMMAND make
   INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/liburing/src/liburing/src/include/liburing.h
 )
 
 # Manually set liburing include and library paths
 set(LIBURING_INCLUDE_DIR ${CMAKE_BINARY_DIR}/liburing/src/liburing/src/include)
 set(LIBURING_LIBRARY ${CMAKE_BINARY_DIR}/liburing/src/liburing/liburing.a)
 
+# Ensure liburing include directory is added after it's built
+ExternalProject_Get_Property(liburing source_dir)
+ExternalProject_Get_Property(liburing binary_dir)
+include_directories(${source_dir}/src/include)
+
 set(CMAKE_BUILD_TYPE Debug)
 
+# Add your log_lib library
 add_library(log_lib STATIC src/log.cpp src/io_context.cpp src/futex.cpp)
 
+# Specify include directories for build and install phases
 target_include_directories(log_lib PUBLIC 
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> 
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${LIBURING_INCLUDE_DIR}>  # Include liburing headers
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>  # For building
+    $<INSTALL_INTERFACE:include>                      # For installation
+    $<BUILD_INTERFACE:${LIBURING_INCLUDE_DIR}>        # Include liburing headers for building
 )
 
+# Ensure dependencies are built in the correct order
 add_dependencies(log_lib liburing fmt)
+
+# Link fmt and liburing libraries
 target_link_libraries(log_lib PUBLIC
     fmt::fmt
     ${LIBURING_LIBRARY}
 )
 
+# Install targets
 install(TARGETS log_lib fmt EXPORT log_libTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
@@ -136,16 +135,16 @@ install(EXPORT log_libTargets
     DESTINATION lib/cmake/log_lib
 )
 
+# Configure package version
 include(CMakePackageConfigHelpers)
-
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/log_libConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
 
+# Configure and install config file
 configure_file(log_libConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/log_libConfig.cmake" @ONLY)
-
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/log_libConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/log_libConfigVersion.cmake"
